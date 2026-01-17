@@ -2,33 +2,50 @@ name: Fix Stats Images
 
 on:
   schedule:
-    - cron: "0 */2 * * *" # 每2小时一次
-  workflow_dispatch:
+    - cron: "0 */2 * * *"  # 每2小时一次
+  workflow_dispatch:        # 允许手动触发
 
 permissions:
   contents: write
 
 jobs:
-  fix-images:
+  update-stats:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Fix image URLs
+      - name: Update image URLs
         run: |
-          TIMESTAMP=$(date +%s)
+          # 生成时间戳
+          TS=$(date +%s)
+          echo "Timestamp: $TS"
           
-          # 简化：直接替换整个img标签
-          sed -i "s|<img src=\"https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin[^\"]*\"|<img src=\"https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin&show_icons=true&theme=transparent&v=$TIMESTAMP\"|g" README.md
+          # 查看当前 README 内容
+          echo "=== Current README ==="
+          cat README.md | grep "github-readme-stats"
+          echo "====================="
           
-          sed -i "s|<img src=\"https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/[^\"]*\"|<img src=\"https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin&layout=compact&hide_border=true&icon_color=586069&title_color=24292e&width=400&v=$TIMESTAMP\"|g" README.md
+          # 简单替换：在 URL 末尾添加时间戳
+          sed -i "s|https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin[^\" ]*|https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin\&show_icons=true\&theme=transparent\&v=$TS|g" README.md
           
-          echo "URLs updated with timestamp: $TIMESTAMP"
+          sed -i "s|https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/[^\" ]*|https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin\&layout=compact\&hide_border=true\&icon_color=586069\&title_color=24292e\&width=400\&v=$TS|g" README.md
+          
+          echo "=== Updated README ==="
+          cat README.md | grep "github-readme-stats"
+          echo "====================="
 
-      - name: Commit changes
+      - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🔄 Update stats images" && git push)
+          
+          # 检查是否有更改
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected, committing..."
+            git add README.md
+            git commit -m "🔄 Update stats cache buster"
+            git push
+          else
+            echo "No changes to commit"
+          fi
