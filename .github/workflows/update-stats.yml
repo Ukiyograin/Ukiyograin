@@ -1,9 +1,12 @@
-name: Fix Stats Images
+name: Update Stats Images
 
 on:
   schedule:
-    - cron: "0 */2 * * *"  # 每2小时一次
-  workflow_dispatch:        # 允许手动触发
+    - cron: "0 */2 * * *"  # 每2小时运行一次（在0分钟）
+  workflow_dispatch:        # 手动触发
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -12,40 +15,37 @@ jobs:
   update-stats:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Update image URLs
+      - name: Update README with timestamp
         run: |
           # 生成时间戳
-          TS=$(date +%s)
-          echo "Timestamp: $TS"
+          TIMESTAMP=$(date +%s)
           
-          # 查看当前 README 内容
-          echo "=== Current README ==="
-          cat README.md | grep "github-readme-stats"
-          echo "====================="
+          # 创建临时文件
+          cp README.md README.md.tmp
           
-          # 简单替换：在 URL 末尾添加时间戳
-          sed -i "s|https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin[^\" ]*|https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin\&show_icons=true\&theme=transparent\&v=$TS|g" README.md
+          # 修复：替换 stats 图片 URL，添加时间戳参数
+          # 第一张图片 - 在URL末尾添加时间戳参数
+          sed -i "s|\(https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin&show_icons=true&theme=transparent\)\([^\"]*\)|\1\2\&v=$TIMESTAMP|g" README.md.tmp
           
-          sed -i "s|https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/[^\" ]*|https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin\&layout=compact\&hide_border=true\&icon_color=586069\&title_color=24292e\&width=400\&v=$TS|g" README.md
+          # 第二张图片 - 在URL末尾添加时间戳参数
+          sed -i "s|\(https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin&layout=compact&hide_border=true&icon_color=586069&title_color=24292e&width=400\)\([^\"]*\)|\1\2\&v=$TIMESTAMP|g" README.md.tmp
           
-          echo "=== Updated README ==="
-          cat README.md | grep "github-readme-stats"
-          echo "====================="
+          # 检查是否有更改
+          if ! cmp -s README.md README.md.tmp; then
+            mv README.md.tmp README.md
+            echo "README updated with new timestamp"
+          else
+            echo "No changes needed"
+            rm README.md.tmp
+          fi
 
-      - name: Commit and push if changed
+      - name: Commit and push changes
+        if: success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # 检查是否有更改
-          if [[ -n $(git status --porcelain) ]]; then
-            echo "Changes detected, committing..."
-            git add README.md
-            git commit -m "🔄 Update stats cache buster"
-            git push
-          else
-            echo "No changes to commit"
-          fi
+          git add README.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🔄 Update stats cache buster [skip ci]" && git push)
