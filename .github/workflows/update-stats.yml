@@ -26,12 +26,11 @@ jobs:
           # 创建临时文件
           cp README.md README.md.tmp
           
-          # 修复：替换 stats 图片 URL，添加时间戳参数
-          # 第一张图片 - 在URL末尾添加时间戳参数
-          sed -i "s|\(https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin&show_icons=true&theme=transparent\)\([^\"]*\)|\1\2\&v=$TIMESTAMP|g" README.md.tmp
+          # 第一张图片 - stats 卡片
+          sed -i "s|\(<img src=\"https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin&show_icons=true&theme=transparent\)[^\"]*|\1\&v=$TIMESTAMP|g" README.md.tmp
           
-          # 第二张图片 - 在URL末尾添加时间戳参数
-          sed -i "s|\(https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin&layout=compact&hide_border=true&icon_color=586069&title_color=24292e&width=400\)\([^\"]*\)|\1\2\&v=$TIMESTAMP|g" README.md.tmp
+          # 第二张图片 - top langs 卡片
+          sed -i "s|\(<img src=\"https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin&layout=compact&hide_border=true&icon_color=586069&title_color=24292e&width=400\)[^\"]*|\1\&v=$TIMESTAMP|g" README.md.tmp
           
           # 检查是否有更改
           if ! cmp -s README.md README.md.tmp; then
