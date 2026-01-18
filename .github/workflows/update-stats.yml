@@ -20,8 +20,9 @@ jobs:
 
       - name: Update README with timestamp
         run: |
-          # 生成时间戳
+          # 生成时间戳和日期
           TIMESTAMP=$(date +%s)
+          UPDATE_DATE=$(date +"%Y-%m-%d %H:%M:%S UTC")
           
           # 创建临时文件
           cp README.md README.md.tmp
@@ -32,10 +33,20 @@ jobs:
           # 第二张图片 - top langs 卡片
           sed -i "s|\(<img src=\"https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin&layout=compact&hide_border=true&icon_color=586069&title_color=24292e&width=400\)[^\"]*|\1\&v=$TIMESTAMP|g" README.md.tmp
           
+          # 更新或添加Last Update日期（放在README末尾的右下角）
+          if grep -q "Last Update:" README.md.tmp; then
+            # 如果已存在Last Update，更新它
+            sed -i "s|Last Update:.*|Last Update: $UPDATE_DATE|g" README.md.tmp
+          else
+            # 如果不存在，添加到README末尾
+            echo "" >> README.md.tmp
+            echo "<p align=\"right\">Last Update: $UPDATE_DATE</p>" >> README.md.tmp
+          fi
+          
           # 检查是否有更改
           if ! cmp -s README.md README.md.tmp; then
             mv README.md.tmp README.md
-            echo "README updated with new timestamp"
+            echo "README updated with new timestamp and date"
           else
             echo "No changes needed"
             rm README.md.tmp
