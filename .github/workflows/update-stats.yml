@@ -20,9 +20,9 @@ jobs:
 
       - name: Update README with timestamp
         run: |
-          # 生成时间戳和日期
+          # 生成时间戳和日期（使用北京时间）
           TIMESTAMP=$(date +%s)
-          UPDATE_DATE=$(date +"%Y-%m-%d %H:%M:%S UTC")
+          UPDATE_DATE=$(TZ='Asia/Shanghai' date +"%Y-%m-%d %H:%M:%S CST")
           
           # 创建临时文件
           cp README.md README.md.tmp
