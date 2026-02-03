@@ -5,10 +5,10 @@
   <p align="center">
 	  <a href="https://github.com/Ukiyograin">GitHub Status</a> 
     <p align="center">
-  <img src="https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin&show_icons=true&theme=transparent&v=1770129519" />
-  <img src="https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin&layout=compact&hide_border=true&icon_color=586069&title_color=24292e&width=400&v=1770129519" />
+  <img src="https://github-readme-stats-inky-one-21.vercel.app/api?username=Ukiyograin&show_icons=true&theme=transparent&v=1770136927" />
+  <img src="https://github-readme-stats-inky-one-21.vercel.app/api/top-langs/?username=Ukiyograin&layout=compact&hide_border=true&icon_color=586069&title_color=24292e&width=400&v=1770136927" />
 </p>
   </p>
 <p>
 
-<p align="right"><p align="right"><p align="right"><p align="right"><p align="right"><p align="right"><p align="right">Last Update: 2026-02-03 22:38:39 CST</p>
+<p align="right"><p align="right"><p align="right"><p align="right"><p align="right"><p align="right"><p align="right"><p align="right">Last Update: 2026-02-04 00:42:07 CST</p>
