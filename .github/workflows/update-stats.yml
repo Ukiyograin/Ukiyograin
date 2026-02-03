@@ -69,7 +69,7 @@ jobs:
         if: steps.update_readme.outputs.has_changes == 'true'
         run: |
           git add README.md
-          git commit -m "🔄 Update stats cache buster [skip ci]"
+          git commit -m "我自己会更新的 😊"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
