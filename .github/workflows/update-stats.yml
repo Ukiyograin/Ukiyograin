@@ -13,16 +13,28 @@ permissions:
 
 jobs:
   update-stats:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest  
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Update README with timestamp
+        id: update_readme
         run: |
           # 生成时间戳和日期（使用北京时间）
           TIMESTAMP=$(date +%s)
           UPDATE_DATE=$(TZ='Asia/Shanghai' date +"%Y-%m-%d %H:%M:%S CST")
+          
+          echo "Current timestamp: $TIMESTAMP"
+          echo "Update date: $UPDATE_DATE"
           
           # 创建临时文件
           cp README.md README.md.tmp
@@ -36,26 +48,28 @@ jobs:
           # 更新或添加Last Update日期（放在README末尾的右下角）
           if grep -q "Last Update:" README.md.tmp; then
             # 如果已存在Last Update，更新它
-            sed -i "s|Last Update:.*|Last Update: $UPDATE_DATE|g" README.md.tmp
+            sed -i "s|Last Update:.*|<p align=\"right\">Last Update: $UPDATE_DATE</p>|g" README.md.tmp
           else
             # 如果不存在，添加到README末尾
-            echo "" >> README.md.tmp
-            echo "<p align=\"right\">Last Update: $UPDATE_DATE</p>" >> README.md.tmp
+            echo -e "\n<p align=\"right\">Last Update: $UPDATE_DATE</p>" >> README.md.tmp
           fi
           
           # 检查是否有更改
           if ! cmp -s README.md README.md.tmp; then
             mv README.md.tmp README.md
             echo "README updated with new timestamp and date"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
           else
             echo "No changes needed"
             rm README.md.tmp
+            echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Commit and push changes
-        if: success()
+        if: steps.update_readme.outputs.has_changes == 'true'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🔄 Update stats cache buster [skip ci]" && git push)
+          git commit -m "🔄 Update stats cache buster [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
