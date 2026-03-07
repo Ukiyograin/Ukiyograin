@@ -24,7 +24,7 @@ jobs:
       - name: Setup Git
         run: |
           git config --global user.name "UKiyograin"
-          git config --global user.email "leng@ipacel.cc"
+          git config --global user.email "actions@github.com"
 
       - name: Update README with timestamp
         id: update_readme
